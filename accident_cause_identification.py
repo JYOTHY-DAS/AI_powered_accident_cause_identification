@@ -11,13 +11,18 @@ nltk.download("stopwords")
 nltk.download("punkt")
 nltk.download("wordnet")
 nltk.download('punkt_tab')
+
 ###################################################################################
-                               # Preprocessing
+                               # Load data
 ###################################################################################
+
 df = pd.read_csv('data_100row.csv')
 print(df.head())
 print(df.shape)
-import pandas as pd
+
+###################################################################################
+                    # Remove duplicates and missing values
+###################################################################################
 
 # Rename the column properly
 df.columns = ["Accident_Report"]
@@ -28,30 +33,43 @@ df.dropna(inplace=True)
 
 # Display cleaned data
 print(df.shape)
+
 ####################################################################################
                                 # NLP Text cleaning
 ####################################################################################
+
 # Initialize NLP tools
 stop_words = set(stopwords.words("english"))
 lemmatizer = WordNetLemmatizer()
+
 # Function to preprocess text
 def preprocess_text(text):
-    text = text.lower()  # Convert to lowercase
-    text = re.sub(r'\d+', '', text)  # Remove numbers
-    text = re.sub(r'[^\w\s]', '', text)  # Remove punctuation
+    text = text.lower()  # Convert to lowercase to ensure uniformity
+    text = re.sub(r'\d+', '', text)  # Remove numbers  (\d+ means one or more digits)
+    text = re.sub(r'[^\w\s]', '', text)  # Remove punctuation (^:Negation \w:letters,numbers,underscore \s:spaces,tabs,newline |matches everything except \w and \s)
     tokens = word_tokenize(text)  # Tokenize words
     tokens = [word for word in tokens if word not in stop_words]  # Remove stopwords
     tokens = [lemmatizer.lemmatize(word) for word in tokens]  # Lemmatization
     return " ".join(tokens)
+'''Example:  
+input: look! lhose 2 cats are running faster than the other 3 cats.
+text= look! those two cats are running faster than the other 3 cats.
+text= look! those two cats are running faster than the other cats.
+text= look those two cats are running faster than the other cats
+tokens= ['look', 'those', 'two', 'cats', 'running', 'faster', 'other', 'cats']
+tokens= ['look', 'those', 'two',  'cat', 'run', 'fast', 'than', 'other', 'cats']
+output= look those two cat run fast than other cats
 
+'''
 # Apply preprocessing
 df["Cleaned_Report"] = df["Accident_Report"].apply(preprocess_text)
+# Display processed data
+print(df.head())
 
 # #Save cleaned report as csv file
 # df.to_csv("cleaned_report.csv", index=False)
 
-# Display processed data
-print(df.head())
+
 ###########################################################################################
                     #Topic Modeling (LDA - Unsupervised Learning)
 ###########################################################################################
