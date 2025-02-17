@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 entities = ['vehicle', 'pedestrian', 'animal', 'stationary object']
 # Specific examples for each entity type
 entity_examples = {
-    'vehicle': ['car', 'bus', 'truck', 'auto-rickshaw', 'bicycle'],
+    'vehicle': ['car', 'bus', 'truck', 'auto-rickshaw', 'bicycle', 'Jeep'],
     'pedestrian': ['a pedestrian'],
     'animal': ['a stray dog', 'a cow'],
     'stationary object': ['a tree', 'a building', 'a pole']
@@ -15,9 +15,8 @@ entity_examples = {
 entity1 = 'vehicle'
 entity2 = random.choice(entities)
 # List of accident causes
-causes = [
-    'over-speeding', 'drunk driving', 'distracted driving', 'red light jumping',
-    'weather conditions', 'wrong side driving', 'vehicle malfunction', 'road conditions','traffic rule violation']
+causes = ['over-speeding', 'drunk driving', 'distracted driving', 'red light jumping',
+          'weather conditions', 'wrong side driving', 'vehicle malfunction', 'road conditions','traffic rule violation']
 
 # List of Kerala cities and notable highways
 locations = [
@@ -39,7 +38,8 @@ vehicle_protective_gear = {
     'bus': None,
     'truck': 'seatbelt',
     'auto-rickshaw': None,  # Typically, auto-rickshaws do not have seatbelts
-    'bicycle': None
+    'bicycle': None,
+    'Jeep': 'seatbelt'
 }
 
 # Function to generate a random date and time
