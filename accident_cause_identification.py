@@ -61,6 +61,7 @@ tokens= ['look', 'those', 'two',  'cat', 'run', 'fast', 'than', 'other', 'cats']
 output= look those two cat run fast than other cats
 
 '''
+
 # Apply preprocessing
 df["Cleaned_Report"] = df["Accident_Report"].apply(preprocess_text)
 # Display processed data
