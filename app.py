@@ -1,61 +1,54 @@
 from flask import Flask, request, jsonify
-import pickle
+import joblib
 import re
-import nltk
-from nltk.tokenize import word_tokenize
+import spacy
 from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
 
-# Load required NLTK resources
-nltk.download("stopwords")
-nltk.download("punkt")
-nltk.download("wordnet")
-
-# Load the saved vectorizer
-with open("vectorizer.pkl", "rb") as f:
-    vectorizer = pickle.load(f)
-
-# Load the saved KMeans model
-with open("kmeans_model.pkl", "rb") as f:
-    kmeans = pickle.load(f)
-
-# Initialize NLP tools
-stop_words = set(stopwords.words("english"))
-lemmatizer = WordNetLemmatizer()
-
-# Function to preprocess text
-def preprocess_text(text):
-    text = text.lower()  # Convert to lowercase
-    text = re.sub(r'\d+', '', text)  # Remove numbers
-    text = re.sub(r'[^\w\s]', '', text)  # Remove punctuation
-    tokens = word_tokenize(text)  # Tokenize words
-    tokens = [word for word in tokens if word not in stop_words]  # Remove stopwords
-    tokens = [lemmatizer.lemmatize(word) for word in tokens]  # Lemmatization
-    return " ".join(tokens)
+# Load necessary components
+nlp = spacy.load("en_core_web_sm")
+model = joblib.load('accident_model.pkl')
+vectorizer = joblib.load('vectorizer.pkl')
+label_encoder = joblib.load('label_encoder.pkl')
 
 # Initialize Flask app
 app = Flask(__name__)
 
-# Root route to avoid 404
-@app.route("/")
-def home():
-    return "Welcome to the AI-Powered Accident Cause Identification API! Use the /predict endpoint to make predictions."
+# Preprocessing function
+def preprocess_text(text):
+    text = text.lower()
+    text = re.sub(r'[^\w\s]', '', text)  # Remove punctuation
+    doc = nlp(text)
+    words = [token.lemma_.lower() for token in doc if token.text.lower() not in stopwords.words('english')]
+    return " ".join(words)
 
-# Prediction route
-@app.route("/predict", methods=['GET',"POST"])
+# Prediction function
+def predict_cause(report):
+    processed_text = preprocess_text(report)
+    vectorized_text = vectorizer.transform([processed_text])
+    primary_cause = label_encoder.inverse_transform(model.predict(vectorized_text))[0]
+
+    # Rule-based secondary cause detection
+    secondary_cause = "Helmet Violation" if "helmet" in report.lower() else "Unknown"
+
+    # Risk factor assessment
+    risk_factor = "High" if "PM" in report or "NH" in report else "Medium"
+
+    return {
+        "Primary Cause": primary_cause,
+        "Secondary Cause": secondary_cause,
+        "Risk Factor": risk_factor
+    }
+
+# API endpoint for chatbot
+@app.route('/predict', methods=['POST'])
 def predict():
     data = request.json
-    if "text" not in data:
-        return jsonify({"error": "Missing 'text' field in request"}), 400
+    if 'text' not in data:
+        return jsonify({"error": "Please provide an accident report text"}), 400
 
-    report = data["text"]
-    processed_report = preprocess_text(report)
-    vectorized_report = vectorizer.transform([processed_report])
-    cluster = kmeans.predict(vectorized_report)[0]
+    response = predict_cause(data['text'])
+    return jsonify(response)
 
-    return jsonify({"Predicted Cluster": int(cluster)})
-
-if __name__ == "__main__":
+# Run the app
+if __name__ == '__main__':
     app.run(debug=True)
-
-

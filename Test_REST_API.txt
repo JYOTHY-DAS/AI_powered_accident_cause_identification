@@ -1,0 +1,22 @@
+*) Method1: Using 'curl' in Bash:
+curl -X POST http://127.0.0.1:5000/predict -H "Content-Type: application/json" -d '{"text": "On 5th Jan 2024, at 10:30 PM, a two-wheeler collided with a truck at NH66 near Trivandrum. The rider, not wearing a helmet, suffered a head injury and succumbed. The truck driver was found to be under the influence of alcohol."}'
+
+Expected output: 
+{
+    "Primary Cause": "Drunk Driving",
+    "Secondary Cause": "Helmet Violation",
+    "Risk Factor": "High"
+}
+
+*) Method2:Using Postman
+step1: Open Postman (or any API testing tool).
+step2: Select POST request.
+step3: Enter URL: http://127.0.0.1:5000/predict
+step4: Go to Body → raw → JSON and enter:
+step5: Type the following text:
+
+{
+    "text": "On 5th Jan 2024, at 10:30 PM, a two-wheeler collided with a truck at NH66 near Trivandrum. The rider, not wearing a helmet, suffered a head injury and succumbed. The truck driver was found to be under the influence of alcohol."
+}
+
+step6: Click Send and check the response.
