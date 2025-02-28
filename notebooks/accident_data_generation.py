@@ -53,10 +53,16 @@ def random_date(start, end):
     )
 
 # Function to determine the primary cause
+# def determine_primary_cause(cause):
+#     if cause in ['drunk driving', 'over-speeding', 'distracted driving', 'wrong side driving']:
+#         return cause.capitalize()
+#     return "Other"
+
 def determine_primary_cause(cause):
-    if cause in ['drunk driving', 'over-speeding', 'distracted driving', 'wrong side driving']:
+    if cause in causes:
         return cause.capitalize()
-    return "Other"
+    else:
+        return "Other"
 
 # Function to determine secondary cause
 def determine_secondary_cause(entity, gear_status):
