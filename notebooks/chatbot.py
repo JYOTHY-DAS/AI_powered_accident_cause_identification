@@ -49,6 +49,6 @@ def chatbot_response(report):
 iface = gr.Interface(fn=chatbot_response,
                      inputs="text",
                      outputs="text",
-                     title="Accident Cause Prediction Chatbot")
+                     title="Accident Cause Identifying Chatbot")
 iface.launch(share=True)
 
