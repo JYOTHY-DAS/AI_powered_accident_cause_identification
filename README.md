@@ -28,7 +28,6 @@ Both methods aim to extract accident causes, risk factors, and related insights 
 ### 2️⃣ LLM-Based Approach (BERT)
 - **Fine-tuned BERT model** on accident datasets to extract primary and secondary causes.
 - **Text Classification**: Predicts the category of an accident based on textual descriptions.
-- 
 ## Installation
 ### Clone the repository:
 ```bash
