@@ -61,8 +61,8 @@ python chatbot.py
 
 ## Contributors
 - **Jyothy Das** ([@JYOTHY-DAS](https://github.com/JYOTHY-DAS))
-- **Jemima IV**
-- **Meenu PV**
+- **Jemima IV** ([@JEMIMA-IV](https://github.com/Jemima-IV))
+- **Meenu PV** ([@MEENU-PV](https://github.com/MEENU-PV))
 
 ## License
 This project is licensed under the MIT License.
