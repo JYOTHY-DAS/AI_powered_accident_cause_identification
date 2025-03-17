@@ -3,7 +3,7 @@
 ## Overview
 This repository contains two separate projects for **accident cause identification**:
 1. **Traditional NLP Approach**: Uses **TF-IDF vectorization** and **Random Forest (with GridSearchCV) classification**.
-2. **LLM-Based Approach**: Implements **BERT-based text classification** to predict primary and secondary accident causes.
+2. **LLM-Based Approach**: Implements **BERT-based text classification** to predict primary and secondary accident causes and risk factor.
 
 Both methods aim to extract accident causes, risk factors, and related insights from textual accident reports. The project helps improve the accuracy and efficiency of accident data analysis.
 
