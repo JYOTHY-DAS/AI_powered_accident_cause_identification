@@ -4,11 +4,11 @@ import os
 from datetime import datetime, timedelta
 
 
-# List of possible weather conditions
-weather_conditions = ["clear", "light rain", "heavy rain", "fog", "squally wind", "drizzle", "overcast"]
 
-# List of possible entities involved in accidents
-entities = ['vehicle', 'pedestrian', 'animal', 'stationary object']
+weather_conditions = ["clear", "light rain", "heavy rain", "fog", "squally wind", "drizzle"]# List of possible weather conditions
+
+
+entities = ['vehicle', 'pedestrian', 'animal', 'stationary object'] # List of possible entities involved in accidents
 
 # Specific examples for each entity type
 entity_examples = {
@@ -18,13 +18,13 @@ entity_examples = {
     'stationary object': ['a tree', 'a building', 'a pole']
 }
 
-# Ensure at least one vehicle is involved
+# Ensure at least one vehicle is involved in the accident
 entity1 = 'vehicle'
 entity2 = random.choice(entities)
 
 # List of accident causes
-causes = ['over-speeding', 'drunk driving', 'distracted driving', 'red light jumping', 'Overloading',
-          'wrong side driving', 'vehicle malfunction', 'road conditions', 'traffic rule violation']
+causes = ['over-speeding', 'drunk driving', 'distracted driving', 'red light jumping', 'overloading',
+          'wrong side driving', 'vehicle malfunction', 'road conditions', 'tailgating']
 
 # Mapping of highways, state highways, and major city roads to the locations they pass through
 road_location_map = {
@@ -100,7 +100,7 @@ def determine_secondary_cause(entity, gear_status, cause, time, location):
         return "Helmet Violation"
     elif entity in ["car", "Jeep", "truck"] and gear_status == "not wearing":
         return "Seatbelt Violation"
-    elif entity in ["bus", "truck", "auto-rickshaw"] and random.random() < 0.3:  # 30% chance
+    elif cause == "overloading":
         return "Overloading Violation"
     elif cause == "over-speeding":
         return "Speeding Violation"
@@ -114,27 +114,32 @@ def determine_secondary_cause(entity, gear_status, cause, time, location):
         return "Drunk Driving Violation"
     elif entity == "pedestrian" and "crossing" in location.lower():
         return "Zebra Crossing Violation"
-    elif random.random() < 0.02 and "PM" in time:  # 20% chance at night
-        return "Failure to Use Headlights at Night"
-    elif random.random() < 0.2:  # 20% chance
-        return "Reckless Driving Violation"
-    elif random.random() < 0.15:  # 15% chance
+    elif cause == "tailgating":
         return "Tailgating Violation"
     
     return "No Violation"
 
 
+
 # Function to determine risk factor
-def determine_risk_factor(time, location, cause):
-    risk = "Medium"
-    
-    # High risk conditions
-    if "PM" in time and ("NH" in location or "highway" in location):
+def determine_risk_factor(time, location, cause, weather):
+    risk = "Low"  # Default risk level
+
+    # Convert time string to a datetime object
+    accident_time = datetime.strptime(time.split(", at ")[1], "%I:%M %p").time()
+
+    # Define high-risk time range (9 PM - 5 AM)
+    high_risk_start = datetime.strptime("9:00 PM", "%I:%M %p").time()
+    high_risk_end = datetime.strptime("5:00 AM", "%I:%M %p").time()
+
+
+    # High risk conditions (External factors that can may lead to an accident)
+    if (high_risk_start <= accident_time or accident_time <= high_risk_end) or (cause in ["road conditions"]) or (weather in ["heavy rain", "fog", "squally wind"]):
         risk = "High"
-    elif cause in ["drunk driving", "over-speeding", "road conditions"]:
-        risk = "High"
-        
+    elif ("NH" in location or "SH" in location) and (high_risk_start >= accident_time or accident_time <= high_risk_end):
+        risk = "Medium"
     return risk
+
 
 # Start and end dates for random date generation
 start_date = datetime(2023, 1, 1)
@@ -145,7 +150,9 @@ end_date = datetime(2025, 2, 11)
 # Define the path to save data file
 data_path = os.path.join("..", "data", "raw", "supervised_accident_data.csv")
 
-
+# Function to check if both entities are vehicles
+def is_tailgating_scenario(vehicle1, vehicle2):
+    return vehicle1 in entity_examples['vehicle'] and vehicle2 in entity_examples['vehicle']
 
 # Open a CSV file to write the supervised data
 with open(data_path, mode='w', newline='') as file:
@@ -173,6 +180,12 @@ with open(data_path, mode='w', newline='') as file:
             gear_text = ""
             gear_status = "wearing"  # Default for non-gear cases
 
+        # Determine if tailgating should be included (30% chance)
+        tailgating_note = ""
+        if is_tailgating_scenario(example1, example2) and random.random() < 0.3:  # 30% probability
+            cause = "tailgating"  # **Override the cause to be tailgating**
+            tailgating_note = " The accident was caused by tailgating."
+
         # Generate report text
         report = (
             f"On {date_time}, under {weather} conditions, a {example1} collided with a {example2} at {location}. "
@@ -180,10 +193,14 @@ with open(data_path, mode='w', newline='') as file:
             f"The cause of the accident was determined to be {cause}."
         )
 
+        # Append tailgating note **ONLY if the random condition is met**
+        if tailgating_note:
+            report += tailgating_note
+
         # Determine labels
         primary_cause = determine_primary_cause(cause)
         secondary_cause = determine_secondary_cause(example1, gear_status, cause, date_time, location)
-        risk_factor = determine_risk_factor(date_time, location, cause)
+        risk_factor = determine_risk_factor(date_time, location, cause, weather)
 
         # Write to CSV
         writer.writerow([report, primary_cause, secondary_cause, risk_factor])
